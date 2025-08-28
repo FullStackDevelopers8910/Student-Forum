@@ -168,30 +168,29 @@
     measurementId: "G-Q3YEJ1EMY9"
   };
 
-  // Initialize Firebase
   firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
   const auth = firebase.auth();
 
   let currentRoom = "academic";
 
-  // Check auth state
+  // Redirect to login if not logged in
   auth.onAuthStateChanged(user => {
     if (!user) {
-      window.location.href = "forum.html";
+      window.location.href = "index.html"; // redirect to login page
     } else {
       loadPosts();
     }
   });
 
-  // Logout function
+  // Logout
   function logout() {
     auth.signOut().then(() => {
-      window.location.href = "forum.html";
+      window.location.href = "index.html"; // redirect to login page
     });
   }
 
-  // Add post
+  // Add post with sender name
   function addPost() {
     const text = document.getElementById("postInput").value.trim();
     if (!text) return;
@@ -205,6 +204,7 @@
       name: name,
       date: new Date().toLocaleString()
     });
+
     document.getElementById("postInput").value = "";
   }
 
@@ -242,7 +242,4 @@
     });
   }
 </script>
-
-</body>
-</html>
 
