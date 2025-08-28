@@ -142,7 +142,7 @@
     auth.signInWithEmailAndPassword(email, password)
       .then(userCredential => {
         alert("Login successful!");
-        window.location.href = "index.html"; // redirect to forum page
+        window.location.href = "forum.html"; // redirect to forum page
       })
       .catch(error => {
         alert(error.message);
@@ -152,3 +152,4 @@
 
 </body>
 </html>
+
