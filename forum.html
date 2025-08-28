@@ -6,6 +6,7 @@
   <!-- ✅ Firebase v8 CDN (works with plain HTML/JS) -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -52,6 +53,9 @@
       font-size: 18px;
       font-weight: bold;
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
     #posts {
       flex: 1;
@@ -97,6 +101,19 @@
       transition: background 0.2s;
     }
     #sendBtn:hover { background: #2980b9; }
+
+    #logoutBtn {
+      background: #e74c3c;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.2s;
+    }
+    #logoutBtn:hover { background: #c0392b; }
+
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
@@ -107,6 +124,8 @@
       #sidebar { width: 100%; flex-direction: row; overflow-x: auto; }
       #sidebar h2 { display: none; }
       .room { flex: 1; text-align: center; }
+      header { flex-direction: column; align-items: flex-start; }
+      #logoutBtn { margin-top: 10px; }
     }
   </style>
 </head>
@@ -125,7 +144,10 @@
 
 <!-- Main -->
 <div id="main">
-  <header id="roomTitle">📘 Academic Doubts</header>
+  <header>
+    <span id="roomTitle">📘 Academic Doubts</span>
+    <button id="logoutBtn" onclick="logout()">Logout</button>
+  </header>
   <div id="posts"></div>
   <div id="inputBox">
     <input type="text" id="postInput" placeholder="Write your message...">
@@ -134,7 +156,7 @@
 </div>
 
 <script>
-  // ✅ Your Firebase Config
+  // Firebase config
   const firebaseConfig = {
     apiKey: "AIzaSyDbZ8mr2iJjXcHIw_wWoQcWqnssYD5MqwE",
     authDomain: "student-forum-2b956.firebaseapp.com",
@@ -149,16 +171,38 @@
   // Initialize Firebase
   firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
+  const auth = firebase.auth();
 
   let currentRoom = "academic";
+
+  // Check auth state
+  auth.onAuthStateChanged(user => {
+    if (!user) {
+      window.location.href = "login.html";
+    } else {
+      loadPosts();
+    }
+  });
+
+  // Logout function
+  function logout() {
+    auth.signOut().then(() => {
+      window.location.href = "login.html";
+    });
+  }
 
   // Add post
   function addPost() {
     const text = document.getElementById("postInput").value.trim();
     if (!text) return;
+
+    const user = auth.currentUser;
+    const name = user.displayName || "Anonymous";
+
     const newRef = db.ref("forumRooms/" + currentRoom).push();
     newRef.set({
       message: text,
+      name: name,
       date: new Date().toLocaleString()
     });
     document.getElementById("postInput").value = "";
@@ -179,7 +223,7 @@
     postsDiv.innerHTML = "<p>Loading posts...</p>";
 
     db.ref("forumRooms/" + currentRoom).off();
-    db.ref("forumRooms/" + currentRoom).on("value", (snapshot) => {
+    db.ref("forumRooms/" + currentRoom).on("value", snapshot => {
       const posts = snapshot.val();
       postsDiv.innerHTML = "";
       if (!posts) {
@@ -190,16 +234,13 @@
         const div = document.createElement("div");
         div.classList.add("post");
         div.innerHTML = `
-          <div>${posts[id].message}</div>
+          <div><strong>${posts[id].name}:</strong> ${posts[id].message}</div>
           <div class="date">${posts[id].date}</div>
         `;
         postsDiv.prepend(div);
       }
     });
   }
-
-  // Load default room
-  loadPosts();
 </script>
 
 </body>
