@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Forum - Login</title>
+  <style>
+    body {
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      background: #eef2f7;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .container {
+      background: #fff;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+    }
+    h2 { margin-bottom: 20px; }
+    input {
+      width: 90%;
+      padding: 10px;
+      margin: 8px 0;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+    button {
+      width: 95%;
+      padding: 10px;
+      margin-top: 10px;
+      background: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    button:hover { background: #0056b3; }
+    .toggle-link {
+      margin-top: 15px;
+      display: block;
+      cursor: pointer;
+      color: #007BFF;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h2 id="formTitle">Login</h2>
+
+  <!-- Login Form -->
+  <div id="loginForm">
+    <input type="email" id="loginEmail" placeholder="Email" required>
+    <input type="password" id="loginPassword" placeholder="Password" required>
+    <button onclick="login()">Login</button>
+  </div>
+
+  <!-- Register Form -->
+  <div id="registerForm" style="display:none;">
+    <input type="text" id="registerName" placeholder="Display Name" required>
+    <input type="email" id="registerEmail" placeholder="Email" required>
+    <input type="password" id="registerPassword" placeholder="Password" required>
+    <button onclick="register()">Register</button>
+  </div>
+
+  <span class="toggle-link" onclick="toggleForm()">Don't have an account? Register</span>
+</div>
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+<script>
+  // 🔥 Your Firebase Configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyDbZ8mr2iJjXcHIw_wWoQcWqnssYD5MqwE",
+    authDomain: "student-forum-2b956.firebaseapp.com",
+    databaseURL: "https://student-forum-2b956-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "student-forum-2b956",
+    storageBucket: "student-forum-2b956.appspot.com",
+    messagingSenderId: "260658118968",
+    appId: "1:260658118968:web:9c1d7be1e9e266a40ac1cd",
+    measurementId: "G-Q3YEJ1EMY9"
+  };
+
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+
+  // Toggle between login and register
+  function toggleForm() {
+    const loginForm = document.getElementById("loginForm");
+    const registerForm = document.getElementById("registerForm");
+    const formTitle = document.getElementById("formTitle");
+    const toggleLink = document.querySelector(".toggle-link");
+
+    if (loginForm.style.display === "none") {
+      loginForm.style.display = "block";
+      registerForm.style.display = "none";
+      formTitle.innerText = "Login";
+      toggleLink.innerText = "Don't have an account? Register";
+    } else {
+      loginForm.style.display = "none";
+      registerForm.style.display = "block";
+      formTitle.innerText = "Register";
+      toggleLink.innerText = "Already have an account? Login";
+    }
+  }
+
+  // Register function
+  function register() {
+    const name = document.getElementById("registerName").value;
+    const email = document.getElementById("registerEmail").value;
+    const password = document.getElementById("registerPassword").value;
+
+    auth.createUserWithEmailAndPassword(email, password)
+      .then(userCredential => {
+        return userCredential.user.updateProfile({ displayName: name });
+      })
+      .then(() => {
+        alert("Registration successful!");
+        window.location.href = "forum.html"; // redirect to forum page
+      })
+      .catch(error => {
+        alert(error.message);
+      });
+  }
+
+  // Login function
+  function login() {
+    const email = document.getElementById("loginEmail").value;
+    const password = document.getElementById("loginPassword").value;
+
+    auth.signInWithEmailAndPassword(email, password)
+      .then(userCredential => {
+        alert("Login successful!");
+        window.location.href = "index.html"; // redirect to forum page
+      })
+      .catch(error => {
+        alert(error.message);
+      });
+  }
+</script>
+
+</body>
+</html>
